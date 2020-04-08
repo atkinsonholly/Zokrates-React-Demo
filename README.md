@@ -16,3 +16,6 @@ https://github.com/trufflesuite/ganache
 `nvm use 11.9.0`
 Open Ganache and run quickstart
 Have a quick look at what is running on ganache (make sure it is running on port 7545)
+
+Run `truffle migrate` which will look for contracts in `./contracts` directory and compile them into JSON objects.
+These will then be deployed onto the local blockchain, and new JSON files will be created under `src/contracts`
