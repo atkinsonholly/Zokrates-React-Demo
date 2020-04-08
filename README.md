@@ -19,3 +19,8 @@ Have a quick look at what is running on ganache (make sure it is running on port
 
 Run `truffle migrate` which will look for contracts in `./contracts` directory and compile them into JSON objects.
 These will then be deployed onto the local blockchain, and new JSON files will be created under `src/contracts`
+
+#### Set up the front end client
+Run `npm install` in `./client` folder
+Run `npm start` in `./client` folder
+Then you should be able to see the front end in your browser by navigating to `localhost:3000` 
