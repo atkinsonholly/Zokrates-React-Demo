@@ -1,14 +1,15 @@
 {
   "contractName": "Pairing",
   "abi": [],
-  "bytecode": "0x604c602c600b82828239805160001a60731460008114601c57601e565bfe5b5030600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a7230582034d92e2ac9dd87e5e8c53e7bc4a28a2c1e996499bc1f78b66f24244875a6d2c30029",
-  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a7230582034d92e2ac9dd87e5e8c53e7bc4a28a2c1e996499bc1f78b66f24244875a6d2c30029",
-  "sourceMap": "15283:5334:1:-;;132:2:-1;166:7;155:9;146:7;137:37;252:7;246:14;243:1;238:23;232:4;229:33;270:1;265:20;;;;222:63;;265:20;274:9;222:63;;298:9;295:1;288:20;328:4;319:7;311:22;352:7;343;336:24",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/timhc22/Repos/Zokrates-React-Demo/contracts/Verifier.sol\":\"Pairing\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/timhc22/Repos/Zokrates-React-Demo/contracts/Verifier.sol\":{\"keccak256\":\"0x07f3c6d9627cb4645cd2e6839641af49b00fabdd80a08bb04bf09c8ccf96437e\",\"urls\":[\"bzz-raw://e2723f20b443478f358a3f7766e69711ea73a51606aa6785341598d11802c0fe\",\"dweb:/ipfs/QmQ7FTw8esMZyaiCYn4cSBz2BuV42wERbNrx6Ss3JKBbJZ\"]}},\"version\":1}",
+  "bytecode": "0x60556023600b82828239805160001a607314601657fe5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea265627a7a72315820924e145201ca43fa8f9861d7d3b2b75eb16475f4e100a2ec626f745d801853bb64736f6c63430005100032",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea265627a7a72315820924e145201ca43fa8f9861d7d3b2b75eb16475f4e100a2ec626f745d801853bb64736f6c63430005100032",
+  "sourceMap": "15283:5334:1:-;;132:2:-1;166:7;155:9;146:7;137:37;255:7;249:14;246:1;241:23;235:4;232:33;222:2;;269:9;222:2;293:9;290:1;283:20;323:4;314:7;306:22;347:7;338;331:24",
   "deployedSourceMap": "15283:5334:1:-;;;;;;;;",
   "source": "// This file is LGPL3 Licensed\n\n/**\n * @title Elliptic curve operations on twist points for alt_bn128\n * @author Mustafa Al-Bassam (mus@musalbas.com)\n * @dev Homepage: https://github.com/musalbas/solidity-BN256G2\n */\n\nlibrary BN256G2 {\n    uint256 internal constant FIELD_MODULUS = 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47;\n    uint256 internal constant TWISTBX = 0x2b149d40ceb8aaae81be18991be06ac3b5b4c5e559dbefa33267e6dc24a138e5;\n    uint256 internal constant TWISTBY = 0x9713b03af0fed4cd2cafadeed8fdf4a74fa084e52d1852e4a2bd0685c315d2;\n    uint internal constant PTXX = 0;\n    uint internal constant PTXY = 1;\n    uint internal constant PTYX = 2;\n    uint internal constant PTYY = 3;\n    uint internal constant PTZX = 4;\n    uint internal constant PTZY = 5;\n\n    /**\n     * @notice Add two twist points\n     * @param pt1xx Coefficient 1 of x on point 1\n     * @param pt1xy Coefficient 2 of x on point 1\n     * @param pt1yx Coefficient 1 of y on point 1\n     * @param pt1yy Coefficient 2 of y on point 1\n     * @param pt2xx Coefficient 1 of x on point 2\n     * @param pt2xy Coefficient 2 of x on point 2\n     * @param pt2yx Coefficient 1 of y on point 2\n     * @param pt2yy Coefficient 2 of y on point 2\n     * @return (pt3xx, pt3xy, pt3yx, pt3yy)\n     */\n    function ECTwistAdd(\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy,\n        uint256 pt2xx, uint256 pt2xy,\n        uint256 pt2yx, uint256 pt2yy\n    ) public view returns (\n        uint256, uint256,\n        uint256, uint256\n    ) {\n        if (\n            pt1xx == 0 && pt1xy == 0 &&\n            pt1yx == 0 && pt1yy == 0\n        ) {\n            if (!(\n                pt2xx == 0 && pt2xy == 0 &&\n                pt2yx == 0 && pt2yy == 0\n            )) {\n                assert(_isOnCurve(\n                    pt2xx, pt2xy,\n                    pt2yx, pt2yy\n                ));\n            }\n            return (\n                pt2xx, pt2xy,\n                pt2yx, pt2yy\n            );\n        } else if (\n            pt2xx == 0 && pt2xy == 0 &&\n            pt2yx == 0 && pt2yy == 0\n        ) {\n            assert(_isOnCurve(\n                pt1xx, pt1xy,\n                pt1yx, pt1yy\n            ));\n            return (\n                pt1xx, pt1xy,\n                pt1yx, pt1yy\n            );\n        }\n\n        assert(_isOnCurve(\n            pt1xx, pt1xy,\n            pt1yx, pt1yy\n        ));\n        assert(_isOnCurve(\n            pt2xx, pt2xy,\n            pt2yx, pt2yy\n        ));\n\n        uint256[6] memory pt3 = _ECTwistAddJacobian(\n            pt1xx, pt1xy,\n            pt1yx, pt1yy,\n            1,     0,\n            pt2xx, pt2xy,\n            pt2yx, pt2yy,\n            1,     0\n        );\n\n        return _fromJacobian(\n            pt3[PTXX], pt3[PTXY],\n            pt3[PTYX], pt3[PTYY],\n            pt3[PTZX], pt3[PTZY]\n        );\n    }\n\n    /**\n     * @notice Multiply a twist point by a scalar\n     * @param s     Scalar to multiply by\n     * @param pt1xx Coefficient 1 of x\n     * @param pt1xy Coefficient 2 of x\n     * @param pt1yx Coefficient 1 of y\n     * @param pt1yy Coefficient 2 of y\n     * @return (pt2xx, pt2xy, pt2yx, pt2yy)\n     */\n    function ECTwistMul(\n        uint256 s,\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy\n    ) public view returns (\n        uint256, uint256,\n        uint256, uint256\n    ) {\n        uint256 pt1zx = 1;\n        if (\n            pt1xx == 0 && pt1xy == 0 &&\n            pt1yx == 0 && pt1yy == 0\n        ) {\n            pt1xx = 1;\n            pt1yx = 1;\n            pt1zx = 0;\n        } else {\n            assert(_isOnCurve(\n                pt1xx, pt1xy,\n                pt1yx, pt1yy\n            ));\n        }\n\n        uint256[6] memory pt2 = _ECTwistMulJacobian(\n            s,\n            pt1xx, pt1xy,\n            pt1yx, pt1yy,\n            pt1zx, 0\n        );\n\n        return _fromJacobian(\n            pt2[PTXX], pt2[PTXY],\n            pt2[PTYX], pt2[PTYY],\n            pt2[PTZX], pt2[PTZY]\n        );\n    }\n\n    /**\n     * @notice Get the field modulus\n     * @return The field modulus\n     */\n    function GetFieldModulus() public pure returns (uint256) {\n        return FIELD_MODULUS;\n    }\n\n    function submod(uint256 a, uint256 b, uint256 n) internal pure returns (uint256) {\n        return addmod(a, n - b, n);\n    }\n\n    function _FQ2Mul(\n        uint256 xx, uint256 xy,\n        uint256 yx, uint256 yy\n    ) internal pure returns (uint256, uint256) {\n        return (\n            submod(mulmod(xx, yx, FIELD_MODULUS), mulmod(xy, yy, FIELD_MODULUS), FIELD_MODULUS),\n            addmod(mulmod(xx, yy, FIELD_MODULUS), mulmod(xy, yx, FIELD_MODULUS), FIELD_MODULUS)\n        );\n    }\n\n    function _FQ2Muc(\n        uint256 xx, uint256 xy,\n        uint256 c\n    ) internal pure returns (uint256, uint256) {\n        return (\n            mulmod(xx, c, FIELD_MODULUS),\n            mulmod(xy, c, FIELD_MODULUS)\n        );\n    }\n\n    function _FQ2Add(\n        uint256 xx, uint256 xy,\n        uint256 yx, uint256 yy\n    ) internal pure returns (uint256, uint256) {\n        return (\n            addmod(xx, yx, FIELD_MODULUS),\n            addmod(xy, yy, FIELD_MODULUS)\n        );\n    }\n\n    function _FQ2Sub(\n        uint256 xx, uint256 xy,\n        uint256 yx, uint256 yy\n    ) internal pure returns (uint256 rx, uint256 ry) {\n        return (\n            submod(xx, yx, FIELD_MODULUS),\n            submod(xy, yy, FIELD_MODULUS)\n        );\n    }\n\n    function _FQ2Div(\n        uint256 xx, uint256 xy,\n        uint256 yx, uint256 yy\n    ) internal view returns (uint256, uint256) {\n        (yx, yy) = _FQ2Inv(yx, yy);\n        return _FQ2Mul(xx, xy, yx, yy);\n    }\n\n    function _FQ2Inv(uint256 x, uint256 y) internal view returns (uint256, uint256) {\n        uint256 inv = _modInv(addmod(mulmod(y, y, FIELD_MODULUS), mulmod(x, x, FIELD_MODULUS), FIELD_MODULUS), FIELD_MODULUS);\n        return (\n            mulmod(x, inv, FIELD_MODULUS),\n            FIELD_MODULUS - mulmod(y, inv, FIELD_MODULUS)\n        );\n    }\n\n    function _isOnCurve(\n        uint256 xx, uint256 xy,\n        uint256 yx, uint256 yy\n    ) internal pure returns (bool) {\n        uint256 yyx;\n        uint256 yyy;\n        uint256 xxxx;\n        uint256 xxxy;\n        (yyx, yyy) = _FQ2Mul(yx, yy, yx, yy);\n        (xxxx, xxxy) = _FQ2Mul(xx, xy, xx, xy);\n        (xxxx, xxxy) = _FQ2Mul(xxxx, xxxy, xx, xy);\n        (yyx, yyy) = _FQ2Sub(yyx, yyy, xxxx, xxxy);\n        (yyx, yyy) = _FQ2Sub(yyx, yyy, TWISTBX, TWISTBY);\n        return yyx == 0 && yyy == 0;\n    }\n\n    function _modInv(uint256 a, uint256 n) internal view returns (uint256 result) {\n        bool success;\n        assembly {\n            let freemem := mload(0x40)\n            mstore(freemem, 0x20)\n            mstore(add(freemem,0x20), 0x20)\n            mstore(add(freemem,0x40), 0x20)\n            mstore(add(freemem,0x60), a)\n            mstore(add(freemem,0x80), sub(n, 2))\n            mstore(add(freemem,0xA0), n)\n            success := staticcall(sub(gas, 2000), 5, freemem, 0xC0, freemem, 0x20)\n            result := mload(freemem)\n        }\n        require(success);\n    }\n\n    function _fromJacobian(\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy,\n        uint256 pt1zx, uint256 pt1zy\n    ) internal view returns (\n        uint256 pt2xx, uint256 pt2xy,\n        uint256 pt2yx, uint256 pt2yy\n    ) {\n        uint256 invzx;\n        uint256 invzy;\n        (invzx, invzy) = _FQ2Inv(pt1zx, pt1zy);\n        (pt2xx, pt2xy) = _FQ2Mul(pt1xx, pt1xy, invzx, invzy);\n        (pt2yx, pt2yy) = _FQ2Mul(pt1yx, pt1yy, invzx, invzy);\n    }\n\n    function _ECTwistAddJacobian(\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy,\n        uint256 pt1zx, uint256 pt1zy,\n        uint256 pt2xx, uint256 pt2xy,\n        uint256 pt2yx, uint256 pt2yy,\n        uint256 pt2zx, uint256 pt2zy) internal pure returns (uint256[6] memory pt3) {\n            if (pt1zx == 0 && pt1zy == 0) {\n                (\n                    pt3[PTXX], pt3[PTXY],\n                    pt3[PTYX], pt3[PTYY],\n                    pt3[PTZX], pt3[PTZY]\n                ) = (\n                    pt2xx, pt2xy,\n                    pt2yx, pt2yy,\n                    pt2zx, pt2zy\n                );\n                return pt3;\n            } else if (pt2zx == 0 && pt2zy == 0) {\n                (\n                    pt3[PTXX], pt3[PTXY],\n                    pt3[PTYX], pt3[PTYY],\n                    pt3[PTZX], pt3[PTZY]\n                ) = (\n                    pt1xx, pt1xy,\n                    pt1yx, pt1yy,\n                    pt1zx, pt1zy\n                );\n                return pt3;\n            }\n\n            (pt2yx, pt2yy) = _FQ2Mul(pt2yx, pt2yy, pt1zx, pt1zy); // U1 = y2 * z1\n            (pt3[PTYX], pt3[PTYY]) = _FQ2Mul(pt1yx, pt1yy, pt2zx, pt2zy); // U2 = y1 * z2\n            (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt1zx, pt1zy); // V1 = x2 * z1\n            (pt3[PTZX], pt3[PTZY]) = _FQ2Mul(pt1xx, pt1xy, pt2zx, pt2zy); // V2 = x1 * z2\n\n            if (pt2xx == pt3[PTZX] && pt2xy == pt3[PTZY]) {\n                if (pt2yx == pt3[PTYX] && pt2yy == pt3[PTYY]) {\n                    (\n                        pt3[PTXX], pt3[PTXY],\n                        pt3[PTYX], pt3[PTYY],\n                        pt3[PTZX], pt3[PTZY]\n                    ) = _ECTwistDoubleJacobian(pt1xx, pt1xy, pt1yx, pt1yy, pt1zx, pt1zy);\n                    return pt3;\n                }\n                (\n                    pt3[PTXX], pt3[PTXY],\n                    pt3[PTYX], pt3[PTYY],\n                    pt3[PTZX], pt3[PTZY]\n                ) = (\n                    1, 0,\n                    1, 0,\n                    0, 0\n                );\n                return pt3;\n            }\n\n            (pt2zx, pt2zy) = _FQ2Mul(pt1zx, pt1zy, pt2zx,     pt2zy);     // W = z1 * z2\n            (pt1xx, pt1xy) = _FQ2Sub(pt2yx, pt2yy, pt3[PTYX], pt3[PTYY]); // U = U1 - U2\n            (pt1yx, pt1yy) = _FQ2Sub(pt2xx, pt2xy, pt3[PTZX], pt3[PTZY]); // V = V1 - V2\n            (pt1zx, pt1zy) = _FQ2Mul(pt1yx, pt1yy, pt1yx,     pt1yy);     // V_squared = V * V\n            (pt2yx, pt2yy) = _FQ2Mul(pt1zx, pt1zy, pt3[PTZX], pt3[PTZY]); // V_squared_times_V2 = V_squared * V2\n            (pt1zx, pt1zy) = _FQ2Mul(pt1zx, pt1zy, pt1yx,     pt1yy);     // V_cubed = V * V_squared\n            (pt3[PTZX], pt3[PTZY]) = _FQ2Mul(pt1zx, pt1zy, pt2zx,     pt2zy);     // newz = V_cubed * W\n            (pt2xx, pt2xy) = _FQ2Mul(pt1xx, pt1xy, pt1xx,     pt1xy);     // U * U\n            (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt2zx,     pt2zy);     // U * U * W\n            (pt2xx, pt2xy) = _FQ2Sub(pt2xx, pt2xy, pt1zx,     pt1zy);     // U * U * W - V_cubed\n            (pt2zx, pt2zy) = _FQ2Muc(pt2yx, pt2yy, 2);                    // 2 * V_squared_times_V2\n            (pt2xx, pt2xy) = _FQ2Sub(pt2xx, pt2xy, pt2zx,     pt2zy);     // A = U * U * W - V_cubed - 2 * V_squared_times_V2\n            (pt3[PTXX], pt3[PTXY]) = _FQ2Mul(pt1yx, pt1yy, pt2xx,     pt2xy);     // newx = V * A\n            (pt1yx, pt1yy) = _FQ2Sub(pt2yx, pt2yy, pt2xx,     pt2xy);     // V_squared_times_V2 - A\n            (pt1yx, pt1yy) = _FQ2Mul(pt1xx, pt1xy, pt1yx,     pt1yy);     // U * (V_squared_times_V2 - A)\n            (pt1xx, pt1xy) = _FQ2Mul(pt1zx, pt1zy, pt3[PTYX], pt3[PTYY]); // V_cubed * U2\n            (pt3[PTYX], pt3[PTYY]) = _FQ2Sub(pt1yx, pt1yy, pt1xx,     pt1xy);     // newy = U * (V_squared_times_V2 - A) - V_cubed * U2\n    }\n\n    function _ECTwistDoubleJacobian(\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy,\n        uint256 pt1zx, uint256 pt1zy\n    ) internal pure returns (\n        uint256 pt2xx, uint256 pt2xy,\n        uint256 pt2yx, uint256 pt2yy,\n        uint256 pt2zx, uint256 pt2zy\n    ) {\n        (pt2xx, pt2xy) = _FQ2Muc(pt1xx, pt1xy, 3);            // 3 * x\n        (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt1xx, pt1xy); // W = 3 * x * x\n        (pt1zx, pt1zy) = _FQ2Mul(pt1yx, pt1yy, pt1zx, pt1zy); // S = y * z\n        (pt2yx, pt2yy) = _FQ2Mul(pt1xx, pt1xy, pt1yx, pt1yy); // x * y\n        (pt2yx, pt2yy) = _FQ2Mul(pt2yx, pt2yy, pt1zx, pt1zy); // B = x * y * S\n        (pt1xx, pt1xy) = _FQ2Mul(pt2xx, pt2xy, pt2xx, pt2xy); // W * W\n        (pt2zx, pt2zy) = _FQ2Muc(pt2yx, pt2yy, 8);            // 8 * B\n        (pt1xx, pt1xy) = _FQ2Sub(pt1xx, pt1xy, pt2zx, pt2zy); // H = W * W - 8 * B\n        (pt2zx, pt2zy) = _FQ2Mul(pt1zx, pt1zy, pt1zx, pt1zy); // S_squared = S * S\n        (pt2yx, pt2yy) = _FQ2Muc(pt2yx, pt2yy, 4);            // 4 * B\n        (pt2yx, pt2yy) = _FQ2Sub(pt2yx, pt2yy, pt1xx, pt1xy); // 4 * B - H\n        (pt2yx, pt2yy) = _FQ2Mul(pt2yx, pt2yy, pt2xx, pt2xy); // W * (4 * B - H)\n        (pt2xx, pt2xy) = _FQ2Muc(pt1yx, pt1yy, 8);            // 8 * y\n        (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt1yx, pt1yy); // 8 * y * y\n        (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt2zx, pt2zy); // 8 * y * y * S_squared\n        (pt2yx, pt2yy) = _FQ2Sub(pt2yx, pt2yy, pt2xx, pt2xy); // newy = W * (4 * B - H) - 8 * y * y * S_squared\n        (pt2xx, pt2xy) = _FQ2Muc(pt1xx, pt1xy, 2);            // 2 * H\n        (pt2xx, pt2xy) = _FQ2Mul(pt2xx, pt2xy, pt1zx, pt1zy); // newx = 2 * H * S\n        (pt2zx, pt2zy) = _FQ2Mul(pt1zx, pt1zy, pt2zx, pt2zy); // S * S_squared\n        (pt2zx, pt2zy) = _FQ2Muc(pt2zx, pt2zy, 8);            // newz = 8 * S * S_squared\n    }\n\n    function _ECTwistMulJacobian(\n        uint256 d,\n        uint256 pt1xx, uint256 pt1xy,\n        uint256 pt1yx, uint256 pt1yy,\n        uint256 pt1zx, uint256 pt1zy\n    ) internal pure returns (uint256[6] memory pt2) {\n        while (d != 0) {\n            if ((d & 1) != 0) {\n                pt2 = _ECTwistAddJacobian(\n                    pt2[PTXX], pt2[PTXY],\n                    pt2[PTYX], pt2[PTYY],\n                    pt2[PTZX], pt2[PTZY],\n                    pt1xx, pt1xy,\n                    pt1yx, pt1yy,\n                    pt1zx, pt1zy);\n            }\n            (\n                pt1xx, pt1xy,\n                pt1yx, pt1yy,\n                pt1zx, pt1zy\n            ) = _ECTwistDoubleJacobian(\n                pt1xx, pt1xy,\n                pt1yx, pt1yy,\n                pt1zx, pt1zy\n            );\n\n            d = d / 2;\n        }\n    }\n}\n// This file is MIT Licensed.\n//\n// Copyright 2017 Christian Reitwiessner\n// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the \n// Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n// THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A \n// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION \n// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\npragma solidity ^0.5.0;\nlibrary Pairing {\n    struct G1Point {\n        uint X;\n        uint Y;\n    }\n    // Encoding of field elements is: X[0] * z + X[1]\n    struct G2Point {\n        uint[2] X;\n        uint[2] Y;\n    }\n    /// @return the generator of G1\n    function P1() pure internal returns (G1Point memory) {\n        return G1Point(1, 2);\n    }\n    /// @return the generator of G2\n    function P2() pure internal returns (G2Point memory) {\n        return G2Point(\n            [11559732032986387107991004021392285783925812861821192530917403151452391805634,\n             10857046999023057135944570762232829481370756359578518086990519993285655852781],\n            [4082367875863433681332203403145435568316851327593401208105741076214120093531,\n             8495653923123431417604973247489272438418190587263600148770280649306958101930]\n        );\n    }\n    /// @return the negation of p, i.e. p.addition(p.negate()) should be zero.\n    function negate(G1Point memory p) pure internal returns (G1Point memory) {\n        // The prime q in the base field F_q for G1\n        uint q = 21888242871839275222246405745257275088696311157297823662689037894645226208583;\n        if (p.X == 0 && p.Y == 0)\n            return G1Point(0, 0);\n        return G1Point(p.X, q - (p.Y % q));\n    }\n    /// @return the sum of two points of G1\n    function addition(G1Point memory p1, G1Point memory p2) internal returns (G1Point memory r) {\n        uint[4] memory input;\n        input[0] = p1.X;\n        input[1] = p1.Y;\n        input[2] = p2.X;\n        input[3] = p2.Y;\n        bool success;\n        assembly {\n            success := call(sub(gas, 2000), 6, 0, input, 0xc0, r, 0x60)\n            // Use \"invalid\" to make gas estimation work\n            switch success case 0 { invalid() }\n        }\n        require(success);\n    }\n    /// @return the sum of two points of G2\n    function addition(G2Point memory p1, G2Point memory p2) internal view returns (G2Point memory r) {\n        (r.X[1], r.X[0], r.Y[1], r.Y[0]) = BN256G2.ECTwistAdd(p1.X[1],p1.X[0],p1.Y[1],p1.Y[0],p2.X[1],p2.X[0],p2.Y[1],p2.Y[0]);\n    }\n    /// @return the product of a point on G1 and a scalar, i.e.\n    /// p == p.scalar_mul(1) and p.addition(p) == p.scalar_mul(2) for all points p.\n    function scalar_mul(G1Point memory p, uint s) internal returns (G1Point memory r) {\n        uint[3] memory input;\n        input[0] = p.X;\n        input[1] = p.Y;\n        input[2] = s;\n        bool success;\n        assembly {\n            success := call(sub(gas, 2000), 7, 0, input, 0x80, r, 0x60)\n            // Use \"invalid\" to make gas estimation work\n            switch success case 0 { invalid() }\n        }\n        require (success);\n    }\n    /// @return the result of computing the pairing check\n    /// e(p1[0], p2[0]) *  .... * e(p1[n], p2[n]) == 1\n    /// For example pairing([P1(), P1().negate()], [P2(), P2()]) should\n    /// return true.\n    function pairing(G1Point[] memory p1, G2Point[] memory p2) internal returns (bool) {\n        require(p1.length == p2.length);\n        uint elements = p1.length;\n        uint inputSize = elements * 6;\n        uint[] memory input = new uint[](inputSize);\n        for (uint i = 0; i < elements; i++)\n        {\n            input[i * 6 + 0] = p1[i].X;\n            input[i * 6 + 1] = p1[i].Y;\n            input[i * 6 + 2] = p2[i].X[0];\n            input[i * 6 + 3] = p2[i].X[1];\n            input[i * 6 + 4] = p2[i].Y[0];\n            input[i * 6 + 5] = p2[i].Y[1];\n        }\n        uint[1] memory out;\n        bool success;\n        assembly {\n            success := call(sub(gas, 2000), 8, 0, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)\n            // Use \"invalid\" to make gas estimation work\n            switch success case 0 { invalid() }\n        }\n        require(success);\n        return out[0] != 0;\n    }\n    /// Convenience method for a pairing check for two pairs.\n    function pairingProd2(G1Point memory a1, G2Point memory a2, G1Point memory b1, G2Point memory b2) internal returns (bool) {\n        G1Point[] memory p1 = new G1Point[](2);\n        G2Point[] memory p2 = new G2Point[](2);\n        p1[0] = a1;\n        p1[1] = b1;\n        p2[0] = a2;\n        p2[1] = b2;\n        return pairing(p1, p2);\n    }\n    /// Convenience method for a pairing check for three pairs.\n    function pairingProd3(\n            G1Point memory a1, G2Point memory a2,\n            G1Point memory b1, G2Point memory b2,\n            G1Point memory c1, G2Point memory c2\n    ) internal returns (bool) {\n        G1Point[] memory p1 = new G1Point[](3);\n        G2Point[] memory p2 = new G2Point[](3);\n        p1[0] = a1;\n        p1[1] = b1;\n        p1[2] = c1;\n        p2[0] = a2;\n        p2[1] = b2;\n        p2[2] = c2;\n        return pairing(p1, p2);\n    }\n    /// Convenience method for a pairing check for four pairs.\n    function pairingProd4(\n            G1Point memory a1, G2Point memory a2,\n            G1Point memory b1, G2Point memory b2,\n            G1Point memory c1, G2Point memory c2,\n            G1Point memory d1, G2Point memory d2\n    ) internal returns (bool) {\n        G1Point[] memory p1 = new G1Point[](4);\n        G2Point[] memory p2 = new G2Point[](4);\n        p1[0] = a1;\n        p1[1] = b1;\n        p1[2] = c1;\n        p1[3] = d1;\n        p2[0] = a2;\n        p2[1] = b2;\n        p2[2] = c2;\n        p2[3] = d2;\n        return pairing(p1, p2);\n    }\n}\n\ncontract Verifier {\n    using Pairing for *;\n    struct VerifyingKey {\n        Pairing.G1Point a;\n        Pairing.G2Point b;\n        Pairing.G2Point gamma;\n        Pairing.G2Point delta;\n        Pairing.G1Point[] gamma_abc;\n    }\n    struct Proof {\n        Pairing.G1Point a;\n        Pairing.G2Point b;\n        Pairing.G1Point c;\n    }\n    function verifyingKey() pure internal returns (VerifyingKey memory vk) {\n        vk.a = Pairing.G1Point(uint256(0x1d2cf2c2965be5942159974f2871ea1f2bee29565d4c0eed872f4a3bc564f48a), uint256(0x1ffd44f50c43acc7d401409144a304665f711596524317e239aa4aac8e340fa9));\n        vk.b = Pairing.G2Point([uint256(0x0ec893cf33fd225afa418e05adec70673d65aac08316a34961420e2d713efea0), uint256(0x16fbaada9add059653e973af48444da6ca7b4b7f618f1175f9b3726ccec8fb43)], [uint256(0x01149f95c6c1f178e43c63d9447e10bc42b95c0cdb597d5f651abf0da48e8ba0), uint256(0x0157a4e66bfac992ec3266ca07c76df65850c19ee3645b6b67548578047f640e)]);\n        vk.gamma = Pairing.G2Point([uint256(0x2740635666d69fb3a71543253bafa60a43ff13a844b8e2bd2681fe5155ae0063), uint256(0x258d604b969e1cd1bb7fa4e9cb9d025708a8a592604718f810bbf1b70a93a342)], [uint256(0x185ad1f3b80c1e0c038ea287788eb575058b68bace5bbae4f6b9f39c97223856), uint256(0x2012dd1ebb5dec01515d125298019ec352751a2b995b78bd71711b7b15acbb75)]);\n        vk.delta = Pairing.G2Point([uint256(0x1a963d366e593e5f272276aa2877ae3f0b48241acb6de1b64a112a82cac60f15), uint256(0x02c6d1ad12d8312b81c3bea2831215019fdb8c82c93b9ecd936b38c9a7eb5748)], [uint256(0x2b1069dfeba6998acea6fcbcfa14b36ff35b957f78199ac5745a3aca4edd36c8), uint256(0x2cc37a4df49c1ea033f9df012fa8f4d6def69f9b7caf8b0ab78a04710379d693)]);\n        vk.gamma_abc = new Pairing.G1Point[](3);\n        vk.gamma_abc[0] = Pairing.G1Point(uint256(0x019a6f8ff32849ed4963e61909c94ffde8e95fa0bfbbde880ff3d7971bca90a5), uint256(0x0a1308bab49f6205eaeee8a584cba176e9bbe5d3204e5b50aa3c6b0dbb633bb1));\n        vk.gamma_abc[1] = Pairing.G1Point(uint256(0x123f88a4d9c43f274b393a502627f6749159f7614a1d73aba000af4771286bc6), uint256(0x14902928e8d3db47f5aaef990ff48dab16b045c0886d0ab4602abcdbcd7bcf9c));\n        vk.gamma_abc[2] = Pairing.G1Point(uint256(0x00bf5b59b6799de4b09693c98da3f3515b28f492934aa1ed165a54ff82767070), uint256(0x150bfeef76f5b25dee07234098c2be233b5541f2adec3da44fb5329aa21b2680));\n    }\n    function verify(uint[] memory input, Proof memory proof) internal returns (uint) {\n        uint256 snark_scalar_field = 21888242871839275222246405745257275088548364400416034343698204186575808495617;\n        VerifyingKey memory vk = verifyingKey();\n        require(input.length + 1 == vk.gamma_abc.length);\n        // Compute the linear combination vk_x\n        Pairing.G1Point memory vk_x = Pairing.G1Point(0, 0);\n        for (uint i = 0; i < input.length; i++) {\n            require(input[i] < snark_scalar_field);\n            vk_x = Pairing.addition(vk_x, Pairing.scalar_mul(vk.gamma_abc[i + 1], input[i]));\n        }\n        vk_x = Pairing.addition(vk_x, vk.gamma_abc[0]);\n        if(!Pairing.pairingProd4(\n             proof.a, proof.b,\n             Pairing.negate(vk_x), vk.gamma,\n             Pairing.negate(proof.c), vk.delta,\n             Pairing.negate(vk.a), vk.b)) return 1;\n        return 0;\n    }\n    event Verified(string s);\n    function verifyTx(\n            uint[2] memory a,\n            uint[2][2] memory b,\n            uint[2] memory c,\n            uint[2] memory input\n        ) public returns (bool r) {\n        Proof memory proof;\n        proof.a = Pairing.G1Point(a[0], a[1]);\n        proof.b = Pairing.G2Point([b[0][0], b[0][1]], [b[1][0], b[1][1]]);\n        proof.c = Pairing.G1Point(c[0], c[1]);\n        uint[] memory inputValues = new uint[](input.length);\n        for(uint i = 0; i < input.length; i++){\n            inputValues[i] = input[i];\n        }\n        if (verify(inputValues, proof) == 0) {\n            emit Verified(\"Transaction successfully verified.\");\n            return true;\n        } else {\n            return false;\n        }\n    }\n}",
-  "sourcePath": "/Users/hollyatkinson/Development/code/zkp_workshop/Zokrates_DApp/contracts/Verifier.sol",
+  "sourcePath": "/Users/timhc22/Repos/Zokrates-React-Demo/contracts/Verifier.sol",
   "ast": {
-    "absolutePath": "/Users/hollyatkinson/Development/code/zkp_workshop/Zokrates_DApp/contracts/Verifier.sol",
+    "absolutePath": "/Users/timhc22/Repos/Zokrates-React-Demo/contracts/Verifier.sol",
     "exportedSymbols": {
       "BN256G2": [
         1547
@@ -2021,15 +2022,15 @@
                           "id": 213,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "2518:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_6_by_1",
+                            "typeString": "int_const 6"
                           },
                           "value": "6"
                         },
@@ -3613,15 +3614,15 @@
                           "id": 319,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "3725:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_6_by_1",
+                            "typeString": "int_const 6"
                           },
                           "value": "6"
                         },
@@ -8919,7 +8920,7 @@
                   "id": 687,
                   "nodeType": "InlineAssembly",
                   "operations": "{\n    let freemem := mload(0x40)\n    mstore(freemem, 0x20)\n    mstore(add(freemem, 0x20), 0x20)\n    mstore(add(freemem, 0x40), 0x20)\n    mstore(add(freemem, 0x60), a)\n    mstore(add(freemem, 0x80), sub(n, 2))\n    mstore(add(freemem, 0xA0), n)\n    success := staticcall(sub(gas(), 2000), 5, freemem, 0xC0, freemem, 0x20)\n    result := mload(freemem)\n}",
-                  "src": "6633:448:1"
+                  "src": "6633:432:1"
                 },
                 {
                   "expression": {
@@ -16423,15 +16424,15 @@
                       "id": 781,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "7871:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_6_by_1",
+                        "typeString": "int_const 6"
                       },
                       "value": "6"
                     },
@@ -21170,15 +21171,15 @@
                       "id": 1476,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "13494:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_6_by_1",
+                        "typeString": "int_const 6"
                       },
                       "value": "6"
                     },
@@ -21327,15 +21328,15 @@
                     "id": 1555,
                     "isConstant": false,
                     "isLValue": false,
-                    "isPure": false,
+                    "isPure": true,
                     "kind": "number",
                     "lValueRequested": false,
                     "nodeType": "Literal",
                     "src": "15448:1:1",
                     "subdenomination": null,
                     "typeDescriptions": {
-                      "typeIdentifier": null,
-                      "typeString": null
+                      "typeIdentifier": "t_rational_2_by_1",
+                      "typeString": "int_const 2"
                     },
                     "value": "2"
                   },
@@ -21380,15 +21381,15 @@
                     "id": 1559,
                     "isConstant": false,
                     "isLValue": false,
-                    "isPure": false,
+                    "isPure": true,
                     "kind": "number",
                     "lValueRequested": false,
                     "nodeType": "Literal",
                     "src": "15467:1:1",
                     "subdenomination": null,
                     "typeDescriptions": {
-                      "typeIdentifier": null,
-                      "typeString": null
+                      "typeIdentifier": "t_rational_2_by_1",
+                      "typeString": "int_const 2"
                     },
                     "value": "2"
                   },
@@ -22378,15 +22379,15 @@
                           "id": 1637,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "16692:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_4_by_1",
+                            "typeString": "int_const 4"
                           },
                           "value": "4"
                         },
@@ -22822,6 +22823,15 @@
                 {
                   "externalReferences": [
                     {
+                      "success": {
+                        "declaration": 1671,
+                        "isOffset": false,
+                        "isSlot": false,
+                        "src": "16862:7:1",
+                        "valueSize": 1
+                      }
+                    },
+                    {
                       "input": {
                         "declaration": 1640,
                         "isOffset": false,
@@ -22844,15 +22854,6 @@
                         "declaration": 1671,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "16862:7:1",
-                        "valueSize": 1
-                      }
-                    },
-                    {
-                      "success": {
-                        "declaration": 1671,
-                        "isOffset": false,
-                        "isSlot": false,
                         "src": "16998:7:1",
                         "valueSize": 1
                       }
@@ -22860,8 +22861,8 @@
                   ],
                   "id": 1673,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 6, 0, input, 0xc0, r, 0x60)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "16839:213:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 6, 0, input, 0xc0, r, 0x60)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "16839:197:1"
                 },
                 {
                   "expression": {
@@ -24043,15 +24044,15 @@
                           "id": 1754,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "17599:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_3_by_1",
+                            "typeString": "int_const 3"
                           },
                           "value": "3"
                         },
@@ -24377,6 +24378,15 @@
                 {
                   "externalReferences": [
                     {
+                      "success": {
+                        "declaration": 1780,
+                        "isOffset": false,
+                        "isSlot": false,
+                        "src": "17739:7:1",
+                        "valueSize": 1
+                      }
+                    },
+                    {
                       "input": {
                         "declaration": 1757,
                         "isOffset": false,
@@ -24399,15 +24409,6 @@
                         "declaration": 1780,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "17739:7:1",
-                        "valueSize": 1
-                      }
-                    },
-                    {
-                      "success": {
-                        "declaration": 1780,
-                        "isOffset": false,
-                        "isSlot": false,
                         "src": "17875:7:1",
                         "valueSize": 1
                       }
@@ -24415,8 +24416,8 @@
                   ],
                   "id": 1782,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 7, 0, input, 0x80, r, 0x60)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "17716:213:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 7, 0, input, 0x80, r, 0x60)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "17716:197:1"
                 },
                 {
                   "expression": {
@@ -26429,15 +26430,15 @@
                           "id": 1927,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "18739:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_1_by_1",
+                            "typeString": "int_const 1"
                           },
                           "value": "1"
                         },
@@ -26497,11 +26498,11 @@
                 {
                   "externalReferences": [
                     {
-                      "out": {
-                        "declaration": 1930,
+                      "success": {
+                        "declaration": 1933,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "18885:3:1",
+                        "src": "18807:7:1",
                         "valueSize": 1
                       }
                     },
@@ -26524,11 +26525,11 @@
                       }
                     },
                     {
-                      "success": {
-                        "declaration": 1933,
+                      "out": {
+                        "declaration": 1930,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "18807:7:1",
+                        "src": "18885:3:1",
                         "valueSize": 1
                       }
                     },
@@ -26544,8 +26545,8 @@
                   ],
                   "id": 1935,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 8, 0, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "18784:242:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 8, 0, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "18784:226:1"
                 },
                 {
                   "expression": {
@@ -35806,15 +35807,15 @@
                       "id": 2481,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23888:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -35860,15 +35861,15 @@
                         "id": 2485,
                         "isConstant": false,
                         "isLValue": false,
-                        "isPure": false,
+                        "isPure": true,
                         "kind": "number",
                         "lValueRequested": false,
                         "nodeType": "Literal",
                         "src": "23918:1:1",
                         "subdenomination": null,
                         "typeDescriptions": {
-                          "typeIdentifier": null,
-                          "typeString": null
+                          "typeIdentifier": "t_rational_2_by_1",
+                          "typeString": "int_const 2"
                         },
                         "value": "2"
                       },
@@ -35886,15 +35887,15 @@
                       "id": 2487,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23921:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -35939,15 +35940,15 @@
                       "id": 2491,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23951:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -35992,15 +35993,15 @@
                       "id": 2495,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23981:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -36064,7 +36065,7 @@
     "src": "218:24368:1"
   },
   "legacyAST": {
-    "absolutePath": "/Users/hollyatkinson/Development/code/zkp_workshop/Zokrates_DApp/contracts/Verifier.sol",
+    "absolutePath": "/Users/timhc22/Repos/Zokrates-React-Demo/contracts/Verifier.sol",
     "exportedSymbols": {
       "BN256G2": [
         1547
@@ -38077,15 +38078,15 @@
                           "id": 213,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "2518:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_6_by_1",
+                            "typeString": "int_const 6"
                           },
                           "value": "6"
                         },
@@ -39669,15 +39670,15 @@
                           "id": 319,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "3725:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_6_by_1",
+                            "typeString": "int_const 6"
                           },
                           "value": "6"
                         },
@@ -44975,7 +44976,7 @@
                   "id": 687,
                   "nodeType": "InlineAssembly",
                   "operations": "{\n    let freemem := mload(0x40)\n    mstore(freemem, 0x20)\n    mstore(add(freemem, 0x20), 0x20)\n    mstore(add(freemem, 0x40), 0x20)\n    mstore(add(freemem, 0x60), a)\n    mstore(add(freemem, 0x80), sub(n, 2))\n    mstore(add(freemem, 0xA0), n)\n    success := staticcall(sub(gas(), 2000), 5, freemem, 0xC0, freemem, 0x20)\n    result := mload(freemem)\n}",
-                  "src": "6633:448:1"
+                  "src": "6633:432:1"
                 },
                 {
                   "expression": {
@@ -52479,15 +52480,15 @@
                       "id": 781,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "7871:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_6_by_1",
+                        "typeString": "int_const 6"
                       },
                       "value": "6"
                     },
@@ -57226,15 +57227,15 @@
                       "id": 1476,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "13494:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_6_by_1",
+                        "typeString": "int_const 6"
                       },
                       "value": "6"
                     },
@@ -57383,15 +57384,15 @@
                     "id": 1555,
                     "isConstant": false,
                     "isLValue": false,
-                    "isPure": false,
+                    "isPure": true,
                     "kind": "number",
                     "lValueRequested": false,
                     "nodeType": "Literal",
                     "src": "15448:1:1",
                     "subdenomination": null,
                     "typeDescriptions": {
-                      "typeIdentifier": null,
-                      "typeString": null
+                      "typeIdentifier": "t_rational_2_by_1",
+                      "typeString": "int_const 2"
                     },
                     "value": "2"
                   },
@@ -57436,15 +57437,15 @@
                     "id": 1559,
                     "isConstant": false,
                     "isLValue": false,
-                    "isPure": false,
+                    "isPure": true,
                     "kind": "number",
                     "lValueRequested": false,
                     "nodeType": "Literal",
                     "src": "15467:1:1",
                     "subdenomination": null,
                     "typeDescriptions": {
-                      "typeIdentifier": null,
-                      "typeString": null
+                      "typeIdentifier": "t_rational_2_by_1",
+                      "typeString": "int_const 2"
                     },
                     "value": "2"
                   },
@@ -58434,15 +58435,15 @@
                           "id": 1637,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "16692:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_4_by_1",
+                            "typeString": "int_const 4"
                           },
                           "value": "4"
                         },
@@ -58878,6 +58879,15 @@
                 {
                   "externalReferences": [
                     {
+                      "success": {
+                        "declaration": 1671,
+                        "isOffset": false,
+                        "isSlot": false,
+                        "src": "16862:7:1",
+                        "valueSize": 1
+                      }
+                    },
+                    {
                       "input": {
                         "declaration": 1640,
                         "isOffset": false,
@@ -58900,15 +58910,6 @@
                         "declaration": 1671,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "16862:7:1",
-                        "valueSize": 1
-                      }
-                    },
-                    {
-                      "success": {
-                        "declaration": 1671,
-                        "isOffset": false,
-                        "isSlot": false,
                         "src": "16998:7:1",
                         "valueSize": 1
                       }
@@ -58916,8 +58917,8 @@
                   ],
                   "id": 1673,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 6, 0, input, 0xc0, r, 0x60)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "16839:213:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 6, 0, input, 0xc0, r, 0x60)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "16839:197:1"
                 },
                 {
                   "expression": {
@@ -60099,15 +60100,15 @@
                           "id": 1754,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "17599:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_3_by_1",
+                            "typeString": "int_const 3"
                           },
                           "value": "3"
                         },
@@ -60433,6 +60434,15 @@
                 {
                   "externalReferences": [
                     {
+                      "success": {
+                        "declaration": 1780,
+                        "isOffset": false,
+                        "isSlot": false,
+                        "src": "17739:7:1",
+                        "valueSize": 1
+                      }
+                    },
+                    {
                       "input": {
                         "declaration": 1757,
                         "isOffset": false,
@@ -60455,15 +60465,6 @@
                         "declaration": 1780,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "17739:7:1",
-                        "valueSize": 1
-                      }
-                    },
-                    {
-                      "success": {
-                        "declaration": 1780,
-                        "isOffset": false,
-                        "isSlot": false,
                         "src": "17875:7:1",
                         "valueSize": 1
                       }
@@ -60471,8 +60472,8 @@
                   ],
                   "id": 1782,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 7, 0, input, 0x80, r, 0x60)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "17716:213:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 7, 0, input, 0x80, r, 0x60)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "17716:197:1"
                 },
                 {
                   "expression": {
@@ -62485,15 +62486,15 @@
                           "id": 1927,
                           "isConstant": false,
                           "isLValue": false,
-                          "isPure": false,
+                          "isPure": true,
                           "kind": "number",
                           "lValueRequested": false,
                           "nodeType": "Literal",
                           "src": "18739:1:1",
                           "subdenomination": null,
                           "typeDescriptions": {
-                            "typeIdentifier": null,
-                            "typeString": null
+                            "typeIdentifier": "t_rational_1_by_1",
+                            "typeString": "int_const 1"
                           },
                           "value": "1"
                         },
@@ -62553,11 +62554,11 @@
                 {
                   "externalReferences": [
                     {
-                      "out": {
-                        "declaration": 1930,
+                      "success": {
+                        "declaration": 1933,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "18885:3:1",
+                        "src": "18807:7:1",
                         "valueSize": 1
                       }
                     },
@@ -62580,11 +62581,11 @@
                       }
                     },
                     {
-                      "success": {
-                        "declaration": 1933,
+                      "out": {
+                        "declaration": 1930,
                         "isOffset": false,
                         "isSlot": false,
-                        "src": "18807:7:1",
+                        "src": "18885:3:1",
                         "valueSize": 1
                       }
                     },
@@ -62600,8 +62601,8 @@
                   ],
                   "id": 1935,
                   "nodeType": "InlineAssembly",
-                  "operations": "{\n    success := call(sub(gas(), 2000), 8, 0, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)\n    switch success\n    case 0 {\n        invalid()\n    }\n}",
-                  "src": "18784:242:1"
+                  "operations": "{\n    success := call(sub(gas(), 2000), 8, 0, add(input, 0x20), mul(inputSize, 0x20), out, 0x20)\n    switch success\n    case 0 { invalid() }\n}",
+                  "src": "18784:226:1"
                 },
                 {
                   "expression": {
@@ -71862,15 +71863,15 @@
                       "id": 2481,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23888:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -71916,15 +71917,15 @@
                         "id": 2485,
                         "isConstant": false,
                         "isLValue": false,
-                        "isPure": false,
+                        "isPure": true,
                         "kind": "number",
                         "lValueRequested": false,
                         "nodeType": "Literal",
                         "src": "23918:1:1",
                         "subdenomination": null,
                         "typeDescriptions": {
-                          "typeIdentifier": null,
-                          "typeString": null
+                          "typeIdentifier": "t_rational_2_by_1",
+                          "typeString": "int_const 2"
                         },
                         "value": "2"
                       },
@@ -71942,15 +71943,15 @@
                       "id": 2487,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23921:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -71995,15 +71996,15 @@
                       "id": 2491,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23951:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -72048,15 +72049,15 @@
                       "id": 2495,
                       "isConstant": false,
                       "isLValue": false,
-                      "isPure": false,
+                      "isPure": true,
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
                       "src": "23981:1:1",
                       "subdenomination": null,
                       "typeDescriptions": {
-                        "typeIdentifier": null,
-                        "typeString": null
+                        "typeIdentifier": "t_rational_2_by_1",
+                        "typeString": "int_const 2"
                       },
                       "value": "2"
                     },
@@ -72121,11 +72122,11 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.0+commit.1d4f565a.Emscripten.clang"
+    "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
   "networks": {},
-  "schemaVersion": "3.0.1",
-  "updatedAt": "2019-09-01T14:49:25.447Z",
+  "schemaVersion": "3.0.23",
+  "updatedAt": "2020-04-08T19:39:09.200Z",
   "devdoc": {
     "methods": {}
   },
