@@ -7,6 +7,10 @@
 Before you start, make sure you have installed the following
 `nvm install 11.9.0`
 `npm install -g truffle`
+Install MetaMask in your browser (or probably any other Web3 client). 
+Make sure MetaMask is running on the same RPC as Ganache.
+* Click add `Custom RPC`
+* Give it a name and add the same URL on as shown on Ganache (likely port 7545)
 
 Download Ganache for running a local blockchain
 https://www.trufflesuite.com/ganache
